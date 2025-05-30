@@ -1,6 +1,6 @@
 import guestApiRequest from "@/apiRequests/guest";
-import { useMutation, useQuery } from "@tanstack/react-query";
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { GuestUpdateOrdersBodyType } from "@/schemaValidations/guest.schema";
 export const useGuestLoginMutation = () => {
   return useMutation({
     mutationFn: guestApiRequest.login,
@@ -19,9 +19,23 @@ export const useGuestOrderMutation = () => {
   });
 };
 
+// export const useGuestUpdateMutation = () => {
+//   return useMutation({
+//     mutationFn: guestApiRequest.update,
+//   });
+// };
 export const useGuestUpdateMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: guestApiRequest.update,
+    mutationFn: ({ id, ...body }: { id: number } & GuestUpdateOrdersBodyType) =>
+      guestApiRequest.update(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["guest-orders"], // thay bằng queryKey phù hợp bạn đang cache
+        exact: true,
+      });
+    },
   });
 };
 export const useGuestGetOrderListQuery = () => {

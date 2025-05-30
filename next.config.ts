@@ -6,12 +6,12 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      // {
+      //   hostname: "localhost",
+      //   pathname: "/**",
+      // },
       {
-        hostname: "localhost",
-        pathname: "/**",
-      },
-      {
-        hostname: "api-bigboy.duthanhduoc.com",
+        hostname: "test-deploy-6kk4.onrender.com",
         pathname: "/**",
       },
       {
@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  experimental: {
+    typedRoutes: false, // 🚫 Tắt kiểm tra type route tự động
   },
 };
 const withBundleAnalyzer = NextBundleAnalyzer({
