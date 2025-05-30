@@ -9,14 +9,8 @@ export const GuestLoginBody = z
       .min(2, { message: "Nhập tên" })
       .max(50, { message: "Nhập tên" }),
 
-    address: z
-      .string({ required_error: "Nhập địa chỉ" })
-      .min(1, { message: "Nhập địa chỉ" }),
-
-    phone: z
-      .string({ required_error: "Nhập số điện thoại" })
-      .min(10, { message: "Nhập số điện thoại" })
-      .max(10, { message: "Nhập số điện thoại" }),
+    address: z.string({ required_error: "Nhập địa chỉ" }),
+    phone: z.string({ required_error: "Nhập số điện thoại" }),
 
     tableNumber: z.number({
       required_error: "Nhập số bàn",
