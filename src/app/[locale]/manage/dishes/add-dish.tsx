@@ -130,6 +130,7 @@ export default function AddDish() {
         );
 
         const data = await res.json();
+        console.log(data);
         values.image = data.secure_url;
       }
 
