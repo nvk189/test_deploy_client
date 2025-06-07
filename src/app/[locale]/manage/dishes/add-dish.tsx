@@ -53,7 +53,7 @@ export default function AddDish() {
       name: "",
       description: "",
       price: 0,
-      image: undefined,
+      image: "",
       status: DishStatus.Unavailable,
       categoryID: 0,
     },
@@ -80,65 +80,50 @@ export default function AddDish() {
   };
   const { data: categories, isLoading } = useDishListStatusQuery();
   const categoryList = categories?.payload?.data ?? [];
-  // const onSubmit = async (values: CreateDishBodyType) => {
-  //   if (addDishMutation.isPending) return;
-  //   try {
-
-  //     let body = values;
-  //     if (file) {
-  //       const formData = new FormData();
-  //       formData.append("file", file);
-  //       const uploadImageResult = await uploadMediaMutation.mutateAsync(
-  //         formData
-  //       );
-  //       const imageUrl = uploadImageResult.payload.data;
-  //       body = {
-  //         ...values,
-  //         image: imageUrl,
-  //       };
-  //     }
-  //     const result = await addDishMutation.mutateAsync(body);
-  //     await revalidateApiRequest("dishes");
-  //     toast({
-  //       description: result.payload.message,
-  //     });
-  //     reset();
-  //     setOpen(false);
-  //   } catch (error) {
-  //     handleErrorApi({
-  //       error,
-  //       setError: form.setError,
-  //     });
-  //   }
-  // };
 
   const onSubmit = async (values: CreateDishBodyType) => {
-    if (addDishMutation.isPending) return;
-
     try {
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", "upload-img");
+      if (addDishMutation.isPending) return;
 
-        const res = await fetch(
-          "https://api.cloudinary.com/v1_1/duebclpy7/image/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        const data = await res.json();
-        console.log(data);
-        values.image = data.secure_url;
+      if (!file) {
+        form.setError("image", {
+          type: "required",
+          message: "Ảnh món ăn là bắt buộc",
+        });
+        return;
       }
 
+      // Upload ảnh
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "upload-img");
+
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/duebclpy7/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await res.json();
+
+      if (!data.secure_url || !data.secure_url.startsWith("http")) {
+        throw new Error("Upload ảnh thất bại hoặc đường dẫn không hợp lệ.");
+      }
+
+      const imageUrl = data.secure_url;
+
+      // ✅ Patch lại values.image để hợp lệ với schema Zod
+      values.image = imageUrl;
+
       const result = await addDishMutation.mutateAsync(values);
+
       await revalidateApiRequest("dishes");
       toast({ description: result.payload.message });
+
       reset();
-      setFile(null); // reset file
+      setFile(null);
       setOpen(false);
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
@@ -173,11 +158,45 @@ export default function AddDish() {
             className="grid auto-rows-max items-start gap-4 md:gap-8"
             id="add-dish-form"
             onSubmit={form.handleSubmit(onSubmit, (e) => {
+              console.log(file);
               console.log(e);
             })}
             onReset={reset}
           >
             <div className="grid gap-4 py-4">
+              {/* <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex gap-2 items-start justify-start">
+                      <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
+                        <AvatarImage src={previewAvatarFromFile} />
+                        <AvatarFallback className="rounded-none">
+                          {name || "Ảnh món ăn"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          field.onChange(e); // cập nhật vào react-hook-form
+                          handleImageChange(e);
+                        }}
+                        ref={field.ref}
+                      />
+                      <button
+                        className="flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed"
+                        type="button"
+                        onClick={() => imageInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 text-muted-foreground" />
+                        <span className="sr-only">Upload</span>
+                      </button>
+                    </div>
+                  </FormItem>
+                )}
+              /> */}
               <FormField
                 control={form.control}
                 name="image"
@@ -193,7 +212,17 @@ export default function AddDish() {
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={handleImageChange}
+                        ref={(e) => {
+                          field.ref(e);
+                          imageInputRef.current = e;
+                        }}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            field.onChange(file); // cập nhật form
+                            handleImageChange(e); // xử lý riêng nếu cần
+                          }
+                        }}
                       />
                       <button
                         className="flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed"

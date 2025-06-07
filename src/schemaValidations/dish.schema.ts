@@ -8,7 +8,7 @@ export const CreateDishBody = z.object({
     .max(256),
   price: z.coerce.number().positive({ message: "Giá phải là số dương" }),
   description: z.string().max(10000),
-  image: z.string().url({ message: "Đường dẫn ảnh không hợp lệ" }),
+  image: z.string().optional(),
   status: z
     .enum(DishStatusValues, {
       errorMap: () => ({ message: "Trạng thái món ăn không hợp lệ" }),
