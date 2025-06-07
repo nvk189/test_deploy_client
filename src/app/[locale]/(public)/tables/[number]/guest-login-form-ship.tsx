@@ -33,8 +33,8 @@ export default function GuestLoginFormShip() {
     resolver: zodResolver(GuestLoginBody),
     defaultValues: {
       name: "",
-      address: "chống",
-      phone: "chống",
+      address: "",
+      phone: "",
       token: token ?? "",
       tableNumber,
     },

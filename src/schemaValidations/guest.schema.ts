@@ -9,8 +9,8 @@ export const GuestLoginBody = z
       .min(2, { message: "Nhập tên" })
       .max(50, { message: "Nhập tên" }),
 
-    address: z.string().nonempty("Nhập địa chỉ"),
-    phone: z.string().nonempty("Nhập số điện thoại"),
+    address: z.string().default("Địa chỉ mặc định"), // default value
+    phone: z.string().default("0000000000"), // default value
 
     tableNumber: z.number({
       required_error: "Nhập số bàn",
