@@ -42,7 +42,7 @@ import { toast } from "@/components/ui/use-toast";
 import revalidateApiRequest from "@/apiRequests/revalidate";
 
 export default function AddDish() {
-  const [file, setFile] = useState<File | null>(null);
+  // const [file, setFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const addDishMutation = useAddDishMutation();
   const uploadMediaMutation = useUploadMediaMutation();
@@ -58,6 +58,14 @@ export default function AddDish() {
       categoryID: 0,
     },
   });
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
   const image = form.watch("image");
   const name = form.watch("name");
   const previewAvatarFromFile = useMemo(() => {
@@ -72,36 +80,69 @@ export default function AddDish() {
   };
   const { data: categories, isLoading } = useDishListStatusQuery();
   const categoryList = categories?.payload?.data ?? [];
+  // const onSubmit = async (values: CreateDishBodyType) => {
+  //   if (addDishMutation.isPending) return;
+  //   try {
+
+  //     let body = values;
+  //     if (file) {
+  //       const formData = new FormData();
+  //       formData.append("file", file);
+  //       const uploadImageResult = await uploadMediaMutation.mutateAsync(
+  //         formData
+  //       );
+  //       const imageUrl = uploadImageResult.payload.data;
+  //       body = {
+  //         ...values,
+  //         image: imageUrl,
+  //       };
+  //     }
+  //     const result = await addDishMutation.mutateAsync(body);
+  //     await revalidateApiRequest("dishes");
+  //     toast({
+  //       description: result.payload.message,
+  //     });
+  //     reset();
+  //     setOpen(false);
+  //   } catch (error) {
+  //     handleErrorApi({
+  //       error,
+  //       setError: form.setError,
+  //     });
+  //   }
+  // };
   const onSubmit = async (values: CreateDishBodyType) => {
     if (addDishMutation.isPending) return;
+
     try {
-      let body = values;
       if (file) {
         const formData = new FormData();
         formData.append("file", file);
-        const uploadImageResult = await uploadMediaMutation.mutateAsync(
-          formData
+        formData.append("upload_preset", "upload-img");
+
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/duebclpy7/image/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
         );
-        const imageUrl = uploadImageResult.payload.data;
-        body = {
-          ...values,
-          image: imageUrl,
-        };
+
+        const data = await res.json();
+        values.image = data.secure_url;
       }
-      const result = await addDishMutation.mutateAsync(body);
+
+      const result = await addDishMutation.mutateAsync(values);
       await revalidateApiRequest("dishes");
-      toast({
-        description: result.payload.message,
-      });
+      toast({ description: result.payload.message });
       reset();
+      setFile(null); // reset file
       setOpen(false);
     } catch (error) {
-      handleErrorApi({
-        error,
-        setError: form.setError,
-      });
+      handleErrorApi({ error, setError: form.setError });
     }
   };
+
   return (
     <Dialog
       onOpenChange={(value) => {
@@ -150,17 +191,7 @@ export default function AddDish() {
                       <input
                         type="file"
                         accept="image/*"
-                        ref={imageInputRef}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setFile(file);
-                            field.onChange(
-                              "http://localhost:3000/" + file.name
-                            );
-                          }
-                        }}
-                        className="hidden"
+                        onChange={handleImageChange}
                       />
                       <button
                         className="flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed"
