@@ -82,10 +82,35 @@ export default function AddDish() {
   const categoryList = categories?.payload?.data ?? [];
 
   const onSubmit = async (values: CreateDishBodyType) => {
-    try {
-      if (addDishMutation.isPending) return;
+    if (addDishMutation.isPending) return;
 
-      if (!file) {
+    try {
+      let imageUrl = values.image;
+
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "upload-img");
+
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/duebclpy7/image/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        console.log("📦 Cloudinary response:", res);
+
+        const data = await res.json();
+        if (!data.secure_url) throw new Error("Upload ảnh thất bại");
+
+        imageUrl = data.secure_url;
+
+        // ✅ Gán lại giá trị image vào form để tránh lỗi
+        form.setValue("image", imageUrl);
+      }
+
+      if (!imageUrl) {
         form.setError("image", {
           type: "required",
           message: "Ảnh món ăn là bắt buộc",
@@ -93,31 +118,10 @@ export default function AddDish() {
         return;
       }
 
-      // Upload ảnh
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "upload-img");
-
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/duebclpy7/image/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-
-      if (!data.secure_url || !data.secure_url.startsWith("http")) {
-        throw new Error("Upload ảnh thất bại hoặc đường dẫn không hợp lệ.");
-      }
-
-      const imageUrl = data.secure_url;
-
-      // ✅ Patch lại values.image để hợp lệ với schema Zod
-      values.image = imageUrl;
-
-      const result = await addDishMutation.mutateAsync(values);
+      const result = await addDishMutation.mutateAsync({
+        ...values,
+        image: imageUrl,
+      });
 
       await revalidateApiRequest("dishes");
       toast({ description: result.payload.message });
@@ -164,7 +168,7 @@ export default function AddDish() {
             onReset={reset}
           >
             <div className="grid gap-4 py-4">
-              {/* <FormField
+              <FormField
                 control={form.control}
                 name="image"
                 render={({ field }) => (
@@ -184,45 +188,6 @@ export default function AddDish() {
                           handleImageChange(e);
                         }}
                         ref={field.ref}
-                      />
-                      <button
-                        className="flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed"
-                        type="button"
-                        onClick={() => imageInputRef.current?.click()}
-                      >
-                        <Upload className="h-4 w-4 text-muted-foreground" />
-                        <span className="sr-only">Upload</span>
-                      </button>
-                    </div>
-                  </FormItem>
-                )}
-              /> */}
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex gap-2 items-start justify-start">
-                      <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
-                        <AvatarImage src={previewAvatarFromFile} />
-                        <AvatarFallback className="rounded-none">
-                          {name || "Ảnh món ăn"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={(e) => {
-                          field.ref(e);
-                          imageInputRef.current = e;
-                        }}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            field.onChange(file); // cập nhật form
-                            handleImageChange(e); // xử lý riêng nếu cần
-                          }
-                        }}
                       />
                       <button
                         className="flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed"
