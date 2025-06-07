@@ -189,14 +189,14 @@ export default function AddDish() {
                         }}
                         ref={field.ref}
                       />
-                      <button
+                      {/* <button
                         className="flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed"
                         type="button"
                         onClick={() => imageInputRef.current?.click()}
                       >
                         <Upload className="h-4 w-4 text-muted-foreground" />
                         <span className="sr-only">Upload</span>
-                      </button>
+                      </button> */}
                     </div>
                   </FormItem>
                 )}
