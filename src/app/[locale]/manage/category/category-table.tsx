@@ -126,7 +126,7 @@ export const columns: ColumnDef<CategoryItem>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={openEditCategory}>Sửa</DropdownMenuItem>
             <DropdownMenuItem onClick={openDeleteCategory}>

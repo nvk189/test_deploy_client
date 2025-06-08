@@ -142,7 +142,7 @@ export const columns: ColumnDef<DishItem>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={openEditDish}>Sửa</DropdownMenuItem>
             <DropdownMenuItem onClick={openDeleteDish}>Xóa</DropdownMenuItem>

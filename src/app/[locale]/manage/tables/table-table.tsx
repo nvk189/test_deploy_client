@@ -126,7 +126,7 @@ export const columns: ColumnDef<TableItem>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={openEditTable}>Sửa</DropdownMenuItem>
             <DropdownMenuItem onClick={openDeleteTable}>Xóa</DropdownMenuItem>

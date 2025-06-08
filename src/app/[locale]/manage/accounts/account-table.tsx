@@ -134,7 +134,7 @@ export const columns: ColumnDef<AccountType>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={openEditEmployee}>Sửa</DropdownMenuItem>
             <DropdownMenuItem onClick={openDeleteEmployee}>
