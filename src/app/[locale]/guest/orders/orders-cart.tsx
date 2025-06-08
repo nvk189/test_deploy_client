@@ -754,7 +754,7 @@ export default function OrdersCart() {
           address: address, // dùng từ state
           phone: phone, // dùng từ state
         });
-
+        localStorage.removeItem("phone_guest");
         setIsPaymentDialogOpen(true);
       } catch (error) {
         console.error("Lỗi khi xử lý thanh toán:", error);
