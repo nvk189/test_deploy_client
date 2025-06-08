@@ -563,9 +563,9 @@ function AlertDialogDeleteOrder({
     </AlertDialog>
   );
 }
-const guestPhoneData = JSON.parse(localStorage.getItem("phone_guest") || "{}");
-const phone = guestPhoneData?.payload?.data?.phone || "";
-const hasPhone = !phone || phone.trim() === "";
+// const guestPhoneData = JSON.parse(localStorage.getItem("phone_guest") || "{}");
+// const phone = guestPhoneData?.payload?.data?.phone || "";
+// const hasPhone = !phone || phone.trim() === "";
 // Modal chọn phương thức thanh toán
 function PaymentMethodDialog({
   open,

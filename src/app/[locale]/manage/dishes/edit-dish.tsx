@@ -72,7 +72,7 @@ export default function EditDish({
   });
   const image = form.watch("image");
   const name = form.watch("name");
-
+  const [originalImage, setOriginalImage] = useState<string | undefined>();
   const previewAvatarFromFile = useMemo(() => {
     if (file) {
       return URL.createObjectURL(file);
@@ -84,6 +84,7 @@ export default function EditDish({
     if (data) {
       const { name, image, description, price, status, categoryID } =
         data.payload.data;
+      setOriginalImage(image);
       form.reset({
         name,
         image: image ?? undefined,
@@ -96,40 +97,84 @@ export default function EditDish({
   }, [data, form]);
   const { data: categories, isLoading } = useDishListStatusQuery();
   const categoryList = categories?.payload?.data ?? [];
+  // const onSubmit = async (values: UpdateDishBodyType) => {
+  //   if (updateDishMutation.isPending) return;
+  //   try {
+  //     let body: UpdateDishBodyType & { id: number } = {
+  //       id: id as number,
+  //       ...values,
+  //     };
+  //     if (file) {
+  //       const formData = new FormData();
+  //       formData.append("file", file);
+  //       const uploadImageResult = await uploadMediaMutation.mutateAsync(
+  //         formData
+  //       );
+  //       const imageUrl = uploadImageResult.payload.data;
+  //       body = {
+  //         ...body,
+  //         image: imageUrl,
+  //       };
+  //     }
+  //     const result = await updateDishMutation.mutateAsync(body);
+  //     await revalidateApiRequest("dishes");
+  //     toast({
+  //       description: result.payload.message,
+  //     });
+  //     reset();
+  //     onSubmitSuccess && onSubmitSuccess();
+  //   } catch (error) {
+  //     handleErrorApi({
+  //       error,
+  //       setError: form.setError,
+  //     });
+  //   }
+  // };
   const onSubmit = async (values: UpdateDishBodyType) => {
     if (updateDishMutation.isPending) return;
+
     try {
-      let body: UpdateDishBodyType & { id: number } = {
-        id: id as number,
-        ...values,
-      };
+      let imageUrl = values.image;
+
+      // ✅ Nếu người dùng chọn ảnh mới (file có) → upload Cloudinary
       if (file) {
         const formData = new FormData();
         formData.append("file", file);
-        const uploadImageResult = await uploadMediaMutation.mutateAsync(
-          formData
+        formData.append("upload_preset", "upload-img");
+
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/duebclpy7/image/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
         );
-        const imageUrl = uploadImageResult.payload.data;
-        body = {
-          ...body,
-          image: imageUrl,
-        };
+
+        const data = await res.json();
+
+        if (!data.secure_url?.startsWith("http")) {
+          throw new Error("Upload ảnh thất bại hoặc sai định dạng.");
+        }
+
+        imageUrl = data.secure_url; // ✅ thay ảnh cũ
       }
+
+      const body: UpdateDishBodyType & { id: number } = {
+        ...values,
+        image: imageUrl,
+        id: id as number,
+      };
+
       const result = await updateDishMutation.mutateAsync(body);
       await revalidateApiRequest("dishes");
-      toast({
-        description: result.payload.message,
-      });
+
+      toast({ description: result.payload.message });
       reset();
-      onSubmitSuccess && onSubmitSuccess();
+      onSubmitSuccess?.();
     } catch (error) {
-      handleErrorApi({
-        error,
-        setError: form.setError,
-      });
+      handleErrorApi({ error, setError: form.setError });
     }
   };
-
   const reset = () => {
     setId(undefined);
     setFile(null);
