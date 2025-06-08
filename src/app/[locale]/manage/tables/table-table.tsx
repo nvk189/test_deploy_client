@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { DotsHorizontalIcon } from '@radix-ui/react-icons'
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -11,9 +11,9 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable
-} from '@tanstack/react-table'
-import { Button } from '@/components/ui/button'
+  useReactTable,
+} from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
 
 import {
   DropdownMenu,
@@ -21,18 +21,18 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from '@/components/ui/table'
-import { createContext, useContext, useEffect, useState } from 'react'
+  TableRow,
+} from "@/components/ui/table";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,131 +41,131 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog'
-import { getVietnameseTableStatus, handleErrorApi } from '@/lib/utils'
-import { useSearchParams } from 'next/navigation'
-import AutoPagination from '@/components/auto-pagination'
-import { TableListResType } from '@/schemaValidations/table.schema'
-import EditTable from '@/app/[locale]/manage/tables/edit-table'
-import AddTable from '@/app/[locale]/manage/tables/add-table'
-import { useDeleteTableMutation, useTableListQuery } from '@/queries/useTable'
-import QRCodeTable from '@/components/qrcode-table'
-import { toast } from '@/components/ui/use-toast'
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { getVietnameseTableStatus, handleErrorApi } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
+import AutoPagination from "@/components/auto-pagination";
+import { TableListResType } from "@/schemaValidations/table.schema";
+import EditTable from "@/app/[locale]/manage/tables/edit-table";
+import AddTable from "@/app/[locale]/manage/tables/add-table";
+import { useDeleteTableMutation, useTableListQuery } from "@/queries/useTable";
+import QRCodeTable from "@/components/qrcode-table";
+import { toast } from "@/components/ui/use-toast";
 
-type TableItem = TableListResType['data'][0]
+type TableItem = TableListResType["data"][0];
 
 const TableTableContext = createContext<{
-  setTableIdEdit: (value: number) => void
-  tableIdEdit: number | undefined
-  tableDelete: TableItem | null
-  setTableDelete: (value: TableItem | null) => void
+  setTableIdEdit: (value: number) => void;
+  tableIdEdit: number | undefined;
+  tableDelete: TableItem | null;
+  setTableDelete: (value: TableItem | null) => void;
 }>({
   setTableIdEdit: (value: number | undefined) => {},
   tableIdEdit: undefined,
   tableDelete: null,
-  setTableDelete: (value: TableItem | null) => {}
-})
+  setTableDelete: (value: TableItem | null) => {},
+});
 
 export const columns: ColumnDef<TableItem>[] = [
   {
-    accessorKey: 'number',
-    header: 'Số bàn',
+    accessorKey: "number",
+    header: "Số bàn",
     cell: ({ row }) => (
-      <div className='capitalize'>{row.getValue('number')}</div>
+      <div className="capitalize">{row.getValue("number")}</div>
     ),
     filterFn: (rows, columnId, filterValue) => {
-      if (!filterValue) return true
-      return String(filterValue) === String(rows.getValue('number'))
-    }
+      if (!filterValue) return true;
+      return String(filterValue) === String(rows.getValue("number"));
+    },
   },
   {
-    accessorKey: 'capacity',
-    header: 'Sức chứa',
+    accessorKey: "capacity",
+    header: "Sức chứa",
     cell: ({ row }) => (
-      <div className='capitalize'>{row.getValue('capacity')}</div>
-    )
+      <div className="capitalize">{row.getValue("capacity")}</div>
+    ),
   },
   {
-    accessorKey: 'status',
-    header: 'Trạng thái',
+    accessorKey: "status",
+    header: "Trạng thái",
     cell: ({ row }) => (
-      <div>{getVietnameseTableStatus(row.getValue('status'))}</div>
-    )
+      <div>{getVietnameseTableStatus(row.getValue("status"))}</div>
+    ),
   },
   {
-    accessorKey: 'token',
-    header: 'QR Code',
+    accessorKey: "token",
+    header: "QR Code",
     cell: ({ row }) => (
       <div>
         <QRCodeTable
-          token={row.getValue('token')}
-          tableNumber={row.getValue('number')}
+          token={row.getValue("token")}
+          tableNumber={row.getValue("number")}
         />
       </div>
-    )
+    ),
   },
   {
-    id: 'actions',
+    id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
-      const { setTableIdEdit, setTableDelete } = useContext(TableTableContext)
+      const { setTableIdEdit, setTableDelete } = useContext(TableTableContext);
       const openEditTable = () => {
-        setTableIdEdit(row.original.number)
-      }
+        setTableIdEdit(row.original.number);
+      };
 
       const openDeleteTable = () => {
-        setTableDelete(row.original)
-      }
+        setTableDelete(row.original);
+      };
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
-              <span className='sr-only'>Open menu</span>
-              <DotsHorizontalIcon className='h-4 w-4' />
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <DotsHorizontalIcon className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
+          <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={openEditTable}>Sửa</DropdownMenuItem>
             <DropdownMenuItem onClick={openDeleteTable}>Xóa</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
-    }
-  }
-]
+      );
+    },
+  },
+];
 
 function AlertDialogDeleteTable({
   tableDelete,
-  setTableDelete
+  setTableDelete,
 }: {
-  tableDelete: TableItem | null
-  setTableDelete: (value: TableItem | null) => void
+  tableDelete: TableItem | null;
+  setTableDelete: (value: TableItem | null) => void;
 }) {
-  const { mutateAsync } = useDeleteTableMutation()
+  const { mutateAsync } = useDeleteTableMutation();
   const deleteTable = async () => {
     if (tableDelete) {
       try {
-        const result = await mutateAsync(tableDelete.number)
-        setTableDelete(null)
+        const result = await mutateAsync(tableDelete.number);
+        setTableDelete(null);
         toast({
-          title: result.payload.message
-        })
+          title: result.payload.message,
+        });
       } catch (error) {
         handleErrorApi({
-          error
-        })
+          error,
+        });
       }
     }
-  }
+  };
   return (
     <AlertDialog
       open={Boolean(tableDelete)}
       onOpenChange={(value) => {
         if (!value) {
-          setTableDelete(null)
+          setTableDelete(null);
         }
       }}
     >
@@ -173,40 +173,40 @@ function AlertDialogDeleteTable({
         <AlertDialogHeader>
           <AlertDialogTitle>Xóa bàn ăn?</AlertDialogTitle>
           <AlertDialogDescription>
-            Bàn{' '}
-            <span className='bg-foreground text-primary-foreground rounded px-1'>
+            Bàn{" "}
+            <span className="bg-foreground text-primary-foreground rounded px-1">
               {tableDelete?.number}
-            </span>{' '}
+            </span>{" "}
             sẽ bị xóa vĩnh viễn
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={deleteTable}>Continue</AlertDialogAction>
+          <AlertDialogCancel>Hủy</AlertDialogCancel>
+          <AlertDialogAction onClick={deleteTable}>Xóa</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
 // Số lượng item trên 1 trang
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 export default function TableTable() {
-  const searchParam = useSearchParams()
-  const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1
-  const pageIndex = page - 1
+  const searchParam = useSearchParams();
+  const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
+  const pageIndex = page - 1;
   // const params = Object.fromEntries(searchParam.entries())
-  const [tableIdEdit, setTableIdEdit] = useState<number | undefined>()
-  const [tableDelete, setTableDelete] = useState<TableItem | null>(null)
-  const tableListQuery = useTableListQuery()
-  const data = tableListQuery.data?.payload.data ?? []
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = useState({})
+  const [tableIdEdit, setTableIdEdit] = useState<number | undefined>();
+  const [tableDelete, setTableDelete] = useState<TableItem | null>(null);
+  const tableListQuery = useTableListQuery();
+  const data = tableListQuery.data?.payload.data ?? [];
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
-    pageSize: PAGE_SIZE //default page size
-  })
+    pageSize: PAGE_SIZE, //default page size
+  });
 
   const table = useReactTable({
     data,
@@ -226,43 +226,43 @@ export default function TableTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination
-    }
-  })
+      pagination,
+    },
+  });
 
   useEffect(() => {
     table.setPagination({
       pageIndex,
-      pageSize: PAGE_SIZE
-    })
-  }, [table, pageIndex])
+      pageSize: PAGE_SIZE,
+    });
+  }, [table, pageIndex]);
 
   return (
     <TableTableContext.Provider
       value={{ tableIdEdit, setTableIdEdit, tableDelete, setTableDelete }}
     >
-      <div className='w-full'>
+      <div className="w-full">
         <EditTable id={tableIdEdit} setId={setTableIdEdit} />
         <AlertDialogDeleteTable
           tableDelete={tableDelete}
           setTableDelete={setTableDelete}
         />
-        <div className='flex items-center py-4'>
+        <div className="flex items-center py-4">
           <Input
-            placeholder='Lọc số bàn'
+            placeholder="Lọc số bàn"
             value={
-              (table.getColumn('number')?.getFilterValue() as string) ?? ''
+              (table.getColumn("number")?.getFilterValue() as string) ?? ""
             }
             onChange={(event) => {
-              table.getColumn('number')?.setFilterValue(event.target.value)
+              table.getColumn("number")?.setFilterValue(event.target.value);
             }}
-            className='max-w-sm'
+            className="max-w-sm"
           />
-          <div className='ml-auto flex items-center gap-2'>
+          <div className="ml-auto flex items-center gap-2">
             <AddTable />
           </div>
         </div>
-        <div className='rounded-md border'>
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -277,7 +277,7 @@ export default function TableTable() {
                               header.getContext()
                             )}
                       </TableHead>
-                    )
+                    );
                   })}
                 </TableRow>
               ))}
@@ -287,7 +287,7 @@ export default function TableTable() {
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
+                    data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -303,7 +303,7 @@ export default function TableTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className='h-24 text-center'
+                    className="h-24 text-center"
                   >
                     No results.
                   </TableCell>
@@ -312,21 +312,21 @@ export default function TableTable() {
             </TableBody>
           </Table>
         </div>
-        <div className='flex items-center justify-end space-x-2 py-4'>
-          <div className='text-xs text-muted-foreground py-4 flex-1 '>
-            Hiển thị{' '}
-            <strong>{table.getPaginationRowModel().rows.length}</strong> trong{' '}
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="text-xs text-muted-foreground py-4 flex-1 ">
+            Hiển thị{" "}
+            <strong>{table.getPaginationRowModel().rows.length}</strong> trong{" "}
             <strong>{data.length}</strong> kết quả
           </div>
           <div>
             <AutoPagination
               page={table.getState().pagination.pageIndex + 1}
               pageSize={table.getPageCount()}
-              pathname='/manage/tables'
+              pathname="/manage/tables"
             />
           </div>
         </div>
       </div>
     </TableTableContext.Provider>
-  )
+  );
 }
