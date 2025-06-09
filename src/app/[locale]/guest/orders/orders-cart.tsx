@@ -482,7 +482,7 @@ export default function OrdersCart() {
             onClick={handlePaymentDialogOpen}
             className="bg-blue-500 text-white text-xl font-semibold px-6 py-1 rounded-lg shadow hover:bg-blue-600 transition duration-300"
           >
-            Thanh toán để xác nhận đơn hàng
+            Thanh toán
           </button>
         </div>
       </div>
